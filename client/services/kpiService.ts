@@ -8,8 +8,11 @@ export async function getKPIs(params?: {
     year?: number;
     userId?: string;
 }) {
-    const qs = params
-        ? `?${new URLSearchParams(Object.entries(params).reduce((acc, [k, v]) => ({ ...acc, [k]: String(v) }), {}))}`
+    const filteredParams = params ? Object.fromEntries(
+        Object.entries(params).filter(([_, v]) => v !== undefined && v !== null && v !== '')
+    ) : {};
+    const qs = Object.keys(filteredParams).length > 0
+        ? `?${new URLSearchParams(Object.entries(filteredParams).reduce((acc, [k, v]) => ({ ...acc, [k]: String(v) }), {}))}`
         : '';
     return apiRequest(`/kpis${qs}`);
 }

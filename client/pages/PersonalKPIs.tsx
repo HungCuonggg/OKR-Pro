@@ -35,6 +35,8 @@ export const PersonalKPIs: React.FC = () => {
     }, [selectedPeriod, user]);
 
     const loadKPIs = async () => {
+        if (!user?.id || (!isManager && !user?.department)) return;
+        
         setIsLoading(true);
         try {
             let data;
@@ -42,7 +44,7 @@ export const PersonalKPIs: React.FC = () => {
                 // Managers see all personal KPIs in their department
                 data = await getKPIs({
                     type: 'PERSONAL',
-                    department: user?.department,
+                    department: user.department,
                     quarter: selectedPeriod.quarter,
                     year: selectedPeriod.year
                 });
@@ -50,7 +52,7 @@ export const PersonalKPIs: React.FC = () => {
                 // Employees see only their own KPIs
                 data = await getKPIs({
                     type: 'PERSONAL',
-                    userId: user?.id,
+                    userId: user.id,
                     quarter: selectedPeriod.quarter,
                     year: selectedPeriod.year
                 });

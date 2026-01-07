@@ -12,8 +12,20 @@ const normalizeId = (item: any) => {
 
 export const userService = {
   getUsers: async (): Promise<User[]> => {
-    const users = await apiRequest('/users', { method: 'GET' });
-    return (users || []).map(normalizeId);
+    try {
+      const users = await apiRequest('/users', { method: 'GET' });
+      const userArray = Array.isArray(users) ? users : [];
+      return userArray.map(normalizeId);
+    } catch (err) {
+      console.error('API error, falling back to local', err);
+      const data = localStorage.getItem('okr_pro_data_users');
+      if (!data) {
+        localStorage.setItem('okr_pro_data_users', JSON.stringify([]));
+        return [];
+      }
+      const parsed = JSON.parse(data);
+      return Array.isArray(parsed) ? parsed : [];
+    }
   },
 
   // Hàm save thông minh: Tự động chọn POST (tạo mới) hoặc PUT (cập nhật) dựa vào id
@@ -35,6 +47,19 @@ export const userService = {
     }
     
     return normalizeId(res);
+  },
+
+  // Wrapper cho code cũ: tạo mới user
+  createUser: async (user: Partial<User>) => {
+    // Đảm bảo không có id khi tạo mới
+    const { id, _id, ...rest } = user;
+    return userService.saveUser(rest);
+  },
+
+  // Wrapper cho code cũ: cập nhật user
+  updateUser: async (id: string, user: Partial<User>) => {
+    // Đảm bảo id đúng
+    return userService.saveUser({ ...user, id });
   },
 
   deleteUser: async (id: string) => {

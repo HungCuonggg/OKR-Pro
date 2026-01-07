@@ -82,7 +82,9 @@ export const Users: React.FC = () => {
         // --- SỬA USER ---
         const payload: any = { ...formData };
         if (!payload.password) delete payload.password;
-        
+        // Xóa trường không cần thiết nếu có
+        delete payload.id;
+        delete payload._id;
         await userService.updateUser(editingUserId, payload);
       } else {
         // --- TẠO MỚI USER ---
@@ -96,6 +98,9 @@ export const Users: React.FC = () => {
           ...formData,
           supervisorId: currentUser?.id
         };
+
+        delete newUserPayload.id;
+        delete newUserPayload._id;
 
         if (currentUser?.role === 'ADMIN') {
           // Admin gọi trực tiếp service
@@ -214,7 +219,9 @@ export const Users: React.FC = () => {
                        {u.role}
                      </span>
                   </td>
-                  <td className="px-6 py-4 text-sm text-slate-600">{u.department}</td>
+                  <td className="px-6 py-4 text-sm text-slate-600">
+                    {departments.find(dep => (dep.id || dep._id) === u.department)?.name || u.department}
+                  </td>
                   <td className="px-6 py-4 text-sm text-slate-500">{supervisorName}</td>
                   <td className="px-6 py-4 text-right">
                     <div className="flex justify-end items-center space-x-2">
@@ -308,10 +315,9 @@ export const Users: React.FC = () => {
                 >
                    <option value="">-- Chọn phòng --</option>
                    {departments.map(dep => {
-                     // Sử dụng getUserId để lấy ID phòng ban an toàn nếu cần, hoặc dùng _id/id trực tiếp
                      const depId = dep.id || dep._id;
                      return (
-                       <option key={depId} value={dep.name}>{dep.name}</option>
+                       <option key={depId} value={depId}>{dep.name}</option>
                      )
                    })}
                    {/* Fallback nếu danh sách rỗng hoặc đang load mà user có sẵn department */}

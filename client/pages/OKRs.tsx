@@ -231,12 +231,11 @@ export const OKRs: React.FC = () => {
               placeholder="Nhập mục tiêu lớn của bạn..." 
               className="w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none" 
             />
-            
             <div className="border border-slate-200 p-4 rounded-xl space-y-3 bg-slate-50">
               <p className="text-xs font-bold uppercase text-slate-500">Thêm Key Results</p>
               <div className="flex space-x-2">
                 <input type="text" placeholder="Tên KR" className="flex-1 border p-2 rounded-lg text-sm" value={manualKR.title} onChange={e => setManualKR({...manualKR, title: e.target.value})} />
-                <input type="number" placeholder="Gía trị" className="w-20 border p-2 rounded-lg text-sm" value={manualKR.targetValue} onChange={e => setManualKR({...manualKR, targetValue: Number(e.target.value)})} />
+                <input type="number" className="w-20 border p-2 rounded-lg text-sm" value={manualKR.targetValue} onChange={e => setManualKR({...manualKR, targetValue: Number(e.target.value)})} />
                 <input type="text" placeholder="Đơn vị" className="w-20 border p-2 rounded-lg text-sm" value={manualKR.unit} onChange={e => setManualKR({...manualKR, unit: e.target.value})} />
                 <button onClick={addManualKR} className="bg-indigo-600 text-white p-2 rounded-lg hover:bg-indigo-700 transition-colors">
                   <span className="material-icons">add</span>

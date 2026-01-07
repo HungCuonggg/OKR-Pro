@@ -4,7 +4,7 @@ import { getOKRSuggestions } from '../services/geminiService';
 import { Objective, KeyResult, ObjectiveStatus } from '../types';
 import { useAuth } from '../context/AuthContext';
 import { dataService } from '../services/dataService';
-import * as okrService from '../services/okrService';
+import * as myOkrService from '../services/myOkrService';
 
 export const MyOKRs: React.FC = () => {
   const { user, selectedPeriod } = useAuth();
@@ -30,7 +30,7 @@ export const MyOKRs: React.FC = () => {
   const loadOKRs = async () => {
     setIsLoading(true);
     try {
-      const data = await okrService.getOKRs({ quarter: selectedPeriod.quarter, year: selectedPeriod.year });
+      const data = await myOkrService.getMyOKRs({ quarter: selectedPeriod.quarter, year: selectedPeriod.year });
       setOkrs((data || []).map((o: any) => adaptOKR(o)));
     } catch (err) {
       // fallback to local storage
@@ -42,6 +42,12 @@ export const MyOKRs: React.FC = () => {
   };
 
   useEffect(() => { loadOKRs(); }, [selectedPeriod]);
+
+  useEffect(() => {
+    const handleOKRUpdate = () => loadOKRs();
+    window.addEventListener('okrUpdated', handleOKRUpdate);
+    return () => window.removeEventListener('okrUpdated', handleOKRUpdate);
+  }, []);
 
   const handleGenerateKRs = async () => {
     if (!newObjective) return;
@@ -103,13 +109,13 @@ export const MyOKRs: React.FC = () => {
     setIsSubmitting(true);
     try {
       if (editingOKRId) {
-        const res = await okrService.updateOKR(editingOKRId, payload);
+        const res = await myOkrService.updateMyOKR(editingOKRId, payload);
         const adapted = adaptOKR(res);
         setStatusMessage('Cập nhật OKR thành công');
         // update list optimistically
         setOkrs(prev => prev.map(o => o.id === adapted.id ? adapted : o));
       } else {
-        const res = await okrService.createOKR(payload);
+        const res = await myOkrService.createMyOKR(payload);
         const adapted = adaptOKR(res);
         setStatusMessage('Tạo OKR thành công');
         setOkrs(prev => [adapted, ...prev]);
@@ -140,7 +146,7 @@ export const MyOKRs: React.FC = () => {
     if (!confirm('Xóa OKR này?')) return;
     setDeletingId(id);
     try {
-      await okrService.deleteOKR(id);
+      await myOkrService.deleteMyOKR(id);
       setStatusMessage('Xóa OKR thành công');
       setTimeout(() => setStatusMessage(''), 3000);
       setOkrs(prev => prev.filter(o => o.id !== id));
@@ -186,7 +192,7 @@ export const MyOKRs: React.FC = () => {
                   <h3 className="text-lg font-bold">{okr.title}</h3>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <span className="text-2xl font-black text-indigo-600">{okr.progress}%</span>
+                  <span className="text-2xl font-black text-indigo-600">{okr.progress || 0}%</span>
                   <div className="opacity-0 group-hover:opacity-100 flex space-x-1">
                     <button onClick={() => { 
                       setEditingOKRId(okr.id); 
@@ -208,10 +214,10 @@ export const MyOKRs: React.FC = () => {
                     <p className="text-xs font-bold truncate">{kr.title}</p>
                     <div className="flex justify-between text-[10px] mt-1">
                       <span>{kr.currentValue}/{kr.targetValue} {kr.unit}</span>
-                      <span className="font-bold">{kr.progress}%</span>
+                      <span className="font-bold">{kr.progress || 0}%</span>
                     </div>
                     <div className="h-1 bg-slate-200 rounded-full mt-1 overflow-hidden">
-                      <div className="h-full bg-indigo-500" style={{width: `${kr.progress}%`}}></div>
+                      <div className="h-full bg-indigo-500" style={{width: `${kr.progress || 0}%`}}></div>
                     </div>
                   </div>
                 ))}

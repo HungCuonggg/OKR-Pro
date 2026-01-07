@@ -11,8 +11,8 @@ const NavLink: React.FC<{ to: string, children: React.ReactNode, icon: string }>
     <Link
       to={to}
       className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${isActive
-        ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100'
-        : 'text-slate-600 hover:bg-slate-100'
+          ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100'
+          : 'text-slate-600 hover:bg-slate-100'
         }`}
     >
       <span className="material-icons text-xl">{icon}</span>
@@ -77,13 +77,13 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
           <NavLink to="/" icon="dashboard">Bảng điều khiển</NavLink>
           <NavLink to="/okrs" icon="track_changes">Mục tiêu OKR</NavLink>
           <NavLink to="/myOkrs" icon="track_changes">OKR cá nhân</NavLink>
+          <NavLink to="/kpis/department" icon="bar_chart">KPI Phòng ban</NavLink>
+          <NavLink to="/kpis/personal" icon="person_pin">KPI Cá nhân</NavLink>
 
           {user?.role !== 'EMPLOYEE' && <NavLink to="/users" icon="group">Thành viên</NavLink>}
           <NavLink to="/tasks" icon="assignment">Công việc</NavLink>
           <NavLink to="/reports" icon="analytics">Báo cáo</NavLink>
           <NavLink to="/teams" icon="corporate_fare">Phòng ban</NavLink>
-          <NavLink to="/kpis/department" icon="bar_chart">KPI Phòng ban</NavLink>
-          <NavLink to="/kpis/personal" icon="person_pin">KPI Cá nhân</NavLink>
         </nav>
 
         <div className="p-4 border-t border-slate-200">

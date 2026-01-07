@@ -1,24 +1,38 @@
 import express from 'express';
 import Task from '../models/Task.js';
 import Objective from '../models/Objective.js';
+import MyObjective from '../models/MyObjective.js';
 import authMiddleware from '../middleware/auth.js';
+import mongoose from 'mongoose';
 
 const router = express.Router();
 
 async function recalcKRProgress(krId) {
-  // Find objective that contains this KR
-  const obj = await Objective.findOne({ 'keyResults._id': krId });
-  if (!obj) return;
-  const kr = obj.keyResults.id(krId);
-  if (!kr) return;
-  // Count tasks for this KR
-  const TaskModel = Task;
-  const tasks = await TaskModel.find({ krId: krId });
-  const done = tasks.filter(t => t.status === 'DONE').length;
-  kr.progress = tasks.length > 0 ? Math.round((done / tasks.length) * 100) : kr.progress;
-  // Recompute objective progress as average
-  obj.progress = Math.round(obj.keyResults.reduce((acc, k) => acc + k.progress, 0) / obj.keyResults.length);
-  await obj.save();
+  try {
+    if (!krId || !mongoose.Types.ObjectId.isValid(krId)) return;
+    // Find objective that contains this KR in either Objective or MyObjective
+    let obj = await Objective.findOne({ 'keyResults._id': krId });
+    if (!obj) {
+      obj = await MyObjective.findOne({ 'keyResults._id': krId });
+    }
+    if (!obj) return;
+    const kr = obj.keyResults.id(krId);
+    if (!kr) return;
+    // Count tasks for this KR
+    const TaskModel = Task;
+    const tasks = await TaskModel.find({ krId: krId });
+    const done = tasks.filter(t => t.status === 'DONE').length;
+    kr.progress = tasks.length > 0 ? Math.round((done / tasks.length) * 100) : kr.progress;
+    // Recompute objective progress as average
+    if (obj.keyResults.length > 0) {
+      obj.progress = Math.round(obj.keyResults.reduce((acc, k) => acc + (k.progress || 0), 0) / obj.keyResults.length);
+    } else {
+      obj.progress = 0;
+    }
+    await obj.save();
+  } catch (err) {
+    console.error('Error in recalcKRProgress:', err);
+  }
 }
 
 // GET with optional query params: assigneeId, krId, status

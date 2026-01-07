@@ -29,11 +29,13 @@ export const DepartmentKPIs: React.FC = () => {
     }, [selectedPeriod, user]);
 
     const loadKPIs = async () => {
+        if (!user?.department) return;
+        
         setIsLoading(true);
         try {
             const data = await getKPIs({
                 type: 'DEPARTMENT',
-                department: user?.department,
+                department: user.department,
                 quarter: selectedPeriod.quarter,
                 year: selectedPeriod.year
             });

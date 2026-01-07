@@ -35,7 +35,7 @@ const App: React.FC = () => {
             </ProtectedRoute>
           } />
 
-          <Route path="/myOkrs" element={
+           <Route path="/myOkrs" element={
             <ProtectedRoute>
               <Layout><MyOKRs /></Layout>
             </ProtectedRoute>

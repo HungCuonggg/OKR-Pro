@@ -22,5 +22,3 @@ View your app in AI Studio: https://ai.studio/apps/drive/1mPkOYjisuX60FppUDaDqGm
    - The app reads `process.env.API_KEY` in `client/services/geminiService.ts`. Set `API_KEY` (or update the code to use `GEMINI_API_KEY`).
 4. Run the app (client-only dev):
    `npm run dev`
-"# OKR-Pro" 
-"# OKR-Pro" 

@@ -22,6 +22,7 @@ app.use(cors())
 import authRoutes from './routes/auth.js'
 import usersRoutes from './routes/users.js'
 import okrsRoutes from './routes/okrs.js'
+import myOkrsRoutes from './routes/my-okrs.js'
 import tasksRoutes from './routes/tasks.js'
 import reportsRoutes from './routes/reports.js'
 import departmentsRoutes from './routes/departments.js'
@@ -65,7 +66,7 @@ async function ensureDefaultAdmin() {
   }
 }
 
-mongoose.connect(process.env.MONGO_URI)
+mongoose.connect('mongodb+srv://dongvanict3_db_user:7yC5wXM1niXHGUmz@cluster0.vrlouhe.mongodb.net/')
   .then(() => {
     console.log('✅ MongoDB Atlas connected');
     ensureDefaultAdmin();
@@ -81,6 +82,7 @@ app.get('/api/health', (req, res) => {
 app.use('/api/auth', authRoutes)
 app.use('/api/users', usersRoutes)
 app.use('/api/okrs', okrsRoutes)
+app.use('/api/my-okrs', myOkrsRoutes)
 app.use('/api/tasks', tasksRoutes)
 app.use('/api/reports', reportsRoutes)
 app.use('/api/departments', departmentsRoutes)
@@ -95,12 +97,8 @@ app.get('/api/auth/me', authMiddleware, (req, res) => {
 const clientDistPath = path.join(__dirname, 'client/dist')
 app.use(express.static(clientDistPath))
 
-// SPA fallback (React Router) - only for GET requests that are not API calls
-app.get('*', (req, res) => {
-  // If it's an API request that somehow got here, return 404
-  if (req.path.startsWith('/api/')) {
-    return res.status(404).json({ message: 'Not found' });
-  }
+// SPA fallback (React Router)
+app.get(/.*/, (req, res) => {
   res.sendFile(path.join(clientDistPath, 'index.html'))
 })
 

@@ -1,7 +1,13 @@
 import { apiRequest } from './apiClient';
 
 export async function getDepartments() {
-  return apiRequest('/departments');
+  try {
+    const depts = await apiRequest('/departments');
+    return Array.isArray(depts) ? depts : [];
+  } catch (err) {
+    console.error('API error for departments', err);
+    return [];
+  }
 }
 
 export async function createDepartment(data: { name: string; head?: string; description?: string }) {

@@ -11,8 +11,8 @@ const INITIAL_USERS: User[] = [
   {
     id: 'admin-1',
     name: 'Quản trị hệ thống',
-    email: 'admin@gmail.com',
-    password: '1234456',
+    email: 'admin@local',
+    password: 'admin1234',
     role: 'ADMIN',
     department: 'Ban Giám Đốc',
     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=admin'
@@ -23,6 +23,15 @@ const normalizeId = (item: any) => {
   if (!item) return item;
   if (item._id && !item.id) {
     item.id = item._id;
+  }
+  // Normalize nested keyResults
+  if (item.keyResults && Array.isArray(item.keyResults)) {
+    item.keyResults = item.keyResults.map((kr: any) => {
+      if (kr._id && !kr.id) {
+        kr.id = kr._id;
+      }
+      return kr;
+    });
   }
   return item;
 };
@@ -216,6 +225,39 @@ export const dataService = {
         return tasks[index];
       }
       return null;
+    }
+  },
+
+  updateTask: async (id: string, task: Partial<Task>) => {
+    try {
+      const res = await apiRequest(`/tasks/${id}`, { method: 'PUT', body: JSON.stringify(task) });
+      return normalizeId(res);
+    } catch (err: any) {
+      if (err.status === 401 || err.status === 403) throw err;
+
+      const tasks = await dataService.getTasks();
+      const index = tasks.findIndex(t => t.id === id);
+      if (index !== -1) {
+        tasks[index] = { ...tasks[index], ...task };
+        localStorage.setItem(STORAGE_KEYS.TASKS, JSON.stringify(tasks));
+        dataService.syncOKRProgress(tasks[index].krId);
+        return tasks[index];
+      }
+      return null;
+    }
+  },
+
+  deleteTask: async (id: string) => {
+    try {
+      await apiRequest(`/tasks/${id}`, { method: 'DELETE' });
+      return true;
+    } catch (err: any) {
+      if (err.status === 401 || err.status === 403) throw err;
+
+      const tasks = await dataService.getTasks();
+      const filtered = tasks.filter(t => t.id !== id);
+      localStorage.setItem(STORAGE_KEYS.TASKS, JSON.stringify(filtered));
+      return true;
     }
   },
 

@@ -1,5 +1,8 @@
+
 import React, { useEffect, useState } from 'react';
 import { getDepartments, createDepartment, updateDepartment, deleteDepartment } from '../services/departmentService';
+import { userService } from '../services/userService';
+import { getOKRs } from '../services/okrService';
 import { useAuth } from '../context/AuthContext';
 
 export const Teams: React.FC = () => {
@@ -18,17 +21,25 @@ export const Teams: React.FC = () => {
 
   async function fetchDepartments() {
     try {
-      const res = await getDepartments();
-      // adapt for existing UI shape if needed
-      const adapted = res.map((d: any) => ({
-        name: d.name,
-        head: d.head || '—',
-        members: 0,
-        status: 'Active',
-        progress: 0,
-        color: 'text-indigo-600',
-        id: d._id
-      }));
+      const [depts, users, okrs] = await Promise.all([
+        getDepartments(),
+        userService.getUsers(),
+        getOKRs()
+      ]);
+      const adapted = depts.map((d: any) => {
+        const deptUsers = users.filter((u: any) => u.department === d._id);
+        const deptOkrs = okrs.filter((o: any) => o.department === d._id);
+        const avgProgress = deptOkrs.length > 0 ? Math.round(deptOkrs.reduce((sum: number, o: any) => sum + o.progress, 0) / deptOkrs.length) : 0;
+        return {
+          name: d.name,
+          head: d.head || '—',
+          members: deptUsers.length,
+          status: 'Active',
+          progress: avgProgress,
+          color: 'text-indigo-600',
+          id: d._id
+        };
+      });
       setDepartments(adapted);
     } catch (err: any) {
       console.error('Failed to load departments', err);
@@ -71,6 +82,7 @@ export const Teams: React.FC = () => {
       setShowModal(false);
       setForm({ name: '', head: '', description: '' });
       setEditingDeptId(null);
+      fetchDepartments(); // Refetch to update counts
     } catch (err: any) {
       alert(err?.message || 'Không thể lưu phòng ban');
     } finally {
@@ -92,6 +104,7 @@ export const Teams: React.FC = () => {
       setDepartments(prev => prev.filter(d => d.id !== id));
       setStatusMessage('Xóa phòng ban thành công');
       setTimeout(() => setStatusMessage(''), 3000);
+      fetchDepartments(); // Refetch to update counts
     } catch (err: any) {
       alert(err?.message || 'Không thể xóa phòng ban');
     } finally {
@@ -178,17 +191,17 @@ export const Teams: React.FC = () => {
                   <span className={`text-sm font-bold ${dept.color}`}>{dept.progress}%</span>
                 </div>
                 <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
-                  <div
-                    className={`h-full bg-current ${dept.color.replace('text', 'bg')}`}
+                  <div 
+                    className={`h-full bg-current ${dept.color.replace('text', 'bg')}`} 
                     style={{ width: `${dept.progress}%` }}
                   ></div>
                 </div>
               </div>
             </div>
-
+            
             <div className="bg-slate-50 px-6 py-4 flex justify-between items-center border-t border-slate-100">
               <div className="flex -space-x-2">
-                {[1, 2, 3, 4].map(n => (
+                {[1,2,3,4].map(n => (
                   <img key={n} src={`https://picsum.photos/seed/user${n}${dept.name}/100/100`} className="w-8 h-8 rounded-full border-2 border-white" alt="avatar" />
                 ))}
                 <div className="w-8 h-8 rounded-full bg-slate-200 border-2 border-white flex items-center justify-center text-[10px] font-bold text-slate-500">
@@ -215,34 +228,34 @@ export const Teams: React.FC = () => {
 
             <div>
               <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Tên phòng ban</label>
-              <input
-                type="text"
+              <input 
+                type="text" 
                 required
                 placeholder="Kỹ thuật"
                 className="w-full p-2 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500"
                 value={form.name}
-                onChange={e => setForm({ ...form, name: e.target.value })}
+                onChange={e => setForm({...form, name: e.target.value})}
               />
             </div>
 
             <div>
               <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Trưởng phòng (tùy chọn)</label>
-              <input
-                type="text"
+              <input 
+                type="text" 
                 placeholder="Nguyễn Văn A"
                 className="w-full p-2 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500"
                 value={form.head}
-                onChange={e => setForm({ ...form, head: e.target.value })}
+                onChange={e => setForm({...form, head: e.target.value})}
               />
             </div>
 
             <div>
               <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Mô tả</label>
-              <textarea
+              <textarea 
                 rows={3}
                 className="w-full p-2 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500"
                 value={form.description}
-                onChange={e => setForm({ ...form, description: e.target.value })}
+                onChange={e => setForm({...form, description: e.target.value})}
               />
             </div>
 

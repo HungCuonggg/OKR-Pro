@@ -90,4 +90,3 @@ export interface KPI {
   createdAt: string;
   updatedAt: string;
 }
-

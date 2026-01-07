@@ -4,8 +4,8 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 export const Login: React.FC = () => {
-  const [email, setEmail] = useState('admin@gmail.com');
-  const [password, setPassword] = useState('1234456');
+  const [email, setEmail] = useState('admin@local');
+  const [password, setPassword] = useState('admin1234');
   const [error, setError] = useState('');
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -40,34 +40,32 @@ export const Login: React.FC = () => {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label className="block text-sm font-bold text-slate-700 mb-2">Email</label>
-              <div className="relative">
-                <span className="material-icons absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg">mail</span>
-                <input 
-                  type="email" 
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
-                  placeholder="admin@gmail.com"
-                  required
-                />
-              </div>
+            <div className="relative">
+              <input 
+                type="email" 
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full pl-4 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all peer"
+                placeholder=""
+                required
+              />
+              <label className="absolute left-4 -top-2 text-xs text-slate-500 bg-white px-1 transition-all duration-200 pointer-events-none peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-placeholder-shown:bg-transparent">
+                Gmail
+              </label>
             </div>
             
-            <div>
-              <label className="block text-sm font-bold text-slate-700 mb-2">Mật khẩu</label>
-              <div className="relative">
-                <span className="material-icons absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg">lock</span>
-                <input 
-                  type="password" 
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
-                  placeholder="••••••••"
-                  required
-                />
-              </div>
+            <div className="relative">
+              <input 
+                type="password" 
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full pl-4 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all peer"
+                placeholder=""
+                required
+              />
+              <label className="absolute left-4 -top-2 text-xs text-slate-500 bg-white px-1 transition-all duration-200 pointer-events-none peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-placeholder-shown:bg-transparent">
+                Password
+              </label>
             </div>
 
             <button 
@@ -80,7 +78,7 @@ export const Login: React.FC = () => {
         </div>
         
         <div className="p-6 bg-slate-50 border-t border-slate-100 text-center">
-          <p className="text-sm text-slate-500">Mặc định: admin@gmail.com / 1234456</p>
+          <p className="text-sm text-slate-500">Mặc định: admin@local / admin1234</p>
         </div>
       </div>
     </div>
