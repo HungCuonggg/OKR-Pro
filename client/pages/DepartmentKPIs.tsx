@@ -30,7 +30,7 @@ export const DepartmentKPIs: React.FC = () => {
 
     const loadKPIs = async () => {
         if (!user?.department) return;
-        
+
         setIsLoading(true);
         try {
             const data = await getKPIs({
@@ -275,7 +275,6 @@ export const DepartmentKPIs: React.FC = () => {
                             <input
                                 type="text"
                                 required
-                                placeholder="Tăng doanh thu"
                                 className="w-full p-2 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500"
                                 value={form.title}
                                 onChange={e => setForm({ ...form, title: e.target.value })}
@@ -298,10 +297,12 @@ export const DepartmentKPIs: React.FC = () => {
                                 <input
                                     type="number"
                                     required
-                                    min="0"
-                                    className="w-full p-2 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500"
-                                    value={form.targetValue}
-                                    onChange={e => setForm({ ...form, targetValue: Number(e.target.value) })}
+                                    className="w-full p-2 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                    value={form.targetValue || ''}
+                                    onChange={e => {
+                                        const val = e.target.value;
+                                        setForm({ ...form, targetValue: val === '' ? 0 : Number(val) });
+                                    }}
                                 />
                             </div>
                             <div>
@@ -309,7 +310,6 @@ export const DepartmentKPIs: React.FC = () => {
                                 <input
                                     type="text"
                                     required
-                                    placeholder="%"
                                     className="w-full p-2 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500"
                                     value={form.unit}
                                     onChange={e => setForm({ ...form, unit: e.target.value })}

@@ -36,7 +36,7 @@ export const PersonalKPIs: React.FC = () => {
 
     const loadKPIs = async () => {
         if (!user?.id || (!isManager && !user?.department)) return;
-        
+
         setIsLoading(true);
         try {
             let data;
@@ -77,9 +77,14 @@ export const PersonalKPIs: React.FC = () => {
     const loadUsers = async () => {
         try {
             const data = await userService.getUsers();
-            // Filter users in same department
-            const filtered = data.filter((u: User) => u.department === user?.department && u.role === 'EMPLOYEE');
-            setUsers(filtered);
+            if (user?.role === 'ADMIN') {
+                // Admin thấy tất cả nhân viên và manager
+                setUsers(data.filter((u: User) => u.id !== user.id));
+            } else if (user?.role === 'MANAGER') {
+                // Manager lọc theo phòng ban của họ
+                const filtered = data.filter((u: User) => u.department === user?.department && u.id !== user.id);
+                setUsers(filtered);
+            }
         } catch (err) {
             console.error('Failed to load users', err);
         }
@@ -351,7 +356,6 @@ export const PersonalKPIs: React.FC = () => {
                             <input
                                 type="text"
                                 required
-                                placeholder="Hoàn thành 10 tasks"
                                 className="w-full p-2 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500"
                                 value={form.title}
                                 onChange={e => setForm({ ...form, title: e.target.value })}
@@ -374,10 +378,12 @@ export const PersonalKPIs: React.FC = () => {
                                 <input
                                     type="number"
                                     required
-                                    min="0"
-                                    className="w-full p-2 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500"
-                                    value={form.targetValue}
-                                    onChange={e => setForm({ ...form, targetValue: Number(e.target.value) })}
+                                    className="w-full p-2 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                    value={form.targetValue || ''}
+                                    onChange={e => {
+                                        const val = e.target.value;
+                                        setForm({ ...form, targetValue: val === '' ? 0 : Number(val) });
+                                    }}
                                 />
                             </div>
                             <div>
@@ -385,7 +391,6 @@ export const PersonalKPIs: React.FC = () => {
                                 <input
                                     type="text"
                                     required
-                                    placeholder="tasks"
                                     className="w-full p-2 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500"
                                     value={form.unit}
                                     onChange={e => setForm({ ...form, unit: e.target.value })}
